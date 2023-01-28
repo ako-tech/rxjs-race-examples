@@ -10,7 +10,7 @@ import {
     last,
 } from "rxjs";
 import { updateTimeLeftLabel } from "./renderer";
-import { updateResults } from "./results-manager";
+import { loader, updateResults } from "./results-manager";
 import "./style.css";
 
 const refreshButton = document.getElementById("refresh-button");
@@ -27,7 +27,7 @@ const autoRefresh$ = timer(0, 1_000).pipe(
 
 race([manualRefresh$, autoRefresh$])
     .pipe(
-        switchMap((_) => updateResults()),
-        repeat(1)
+        switchMap((_) => race([loader(), updateResults()])),
+        repeat(2)
     )
     .subscribe();

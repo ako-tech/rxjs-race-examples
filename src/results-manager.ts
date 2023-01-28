@@ -1,4 +1,4 @@
-import { delay, Observable, of, tap } from "rxjs";
+import { delay, Observable, of, tap, NEVER } from "rxjs";
 import {
     disableAutoRefreshBtn,
     enableAutoRefreshBtn,
@@ -25,6 +25,15 @@ export function updateResults(): Observable<string[]> {
                 enableAutoRefreshBtn();
                 renderResults(results);
             },
+        })
+    );
+}
+
+export function loader(): typeof NEVER {
+    return NEVER.pipe(
+        tap({
+            subscribe: () => console.log("show loader"),
+            finalize: () => console.log("hide loader"),
         })
     );
 }
