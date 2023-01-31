@@ -30,8 +30,17 @@ function processQuestion(question: Question): Observable<[Question, Answer]> {
         tap(renderQuestion),
         switchMap(() => {
             // obtener botones
+            const answersBtns = document.querySelectorAll<HTMLButtonElement>(
+                "#question-container button"
+            );
             // crear observables alrededor del click de cada boton
+            const answersClicks$ = Array.from(answersBtns).map(
+                generateAnswerClickObservable
+            );
             // combinar los observables de los clicks
+            const timeout$ = createTimeout(5).pipe(map(() => ""));
+
+            return race([...answersClicks$, timeout$]);
         }),
         map((answer) => [question, answer])
     );
