@@ -11,7 +11,7 @@ export interface QuizResults {
     numberOfValidAnswers: number;
 }
 
-export const questionnaire: Questions = [
+export const questions: Questions = [
     {
         prompt: "¿Cual es el resultado de 1+1?",
         possibleAnswers: ["2", "0", "3"],
