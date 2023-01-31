@@ -16,18 +16,6 @@ import { renderQuestion, renderResults } from "./renderer";
 import "./style.css";
 import { createTimeout } from "./timeout";
 
-function processQuestion(question: Question): Observable<[Question, Answer]> {
-    return of(question).pipe(
-        tap(renderQuestion),
-        switchMap(() => {
-            const answersClick$ = generateAnswersClickObservables();
-            const timeout$ = createTimeout(5).pipe(map(() => ""));
-            return race([...answersClick$, timeout$]);
-        }),
-        map((answer) => [question, answer])
-    );
-}
-
 from(questionnaire)
     .pipe(
         concatMap(processQuestion),
@@ -37,11 +25,29 @@ from(questionnaire)
     )
     .subscribe(console.log);
 
-function generateAnswersClickObservables(): Observable<Answer>[] {
-    const buttons = document.querySelectorAll<HTMLButtonElement>(
-        "#question-container button"
+// concat(...questionnaire.map(processQuestion))
+//     .pipe(
+//         toArray(),
+//         map(processAnswers),
+//         tap(renderResults)
+//     )
+//     .subscribe(console.log);
+
+function processQuestion(question: Question): Observable<[Question, Answer]> {
+    return of(question).pipe(
+        tap(renderQuestion),
+        switchMap(() => {
+            const answersBtns = document.querySelectorAll<HTMLButtonElement>(
+                "#question-container button"
+            );
+            const answersClick$ = Array.from(answersBtns).map(
+                generateAnswerClickObservable
+            );
+            const timeout$ = createTimeout(5).pipe(map(() => ""));
+            return race([...answersClick$, timeout$]);
+        }),
+        map((answer) => [question, answer])
     );
-    return Array.from(buttons).map(generateAnswerClickObservable);
 }
 
 function generateAnswerClickObservable(
